@@ -23,7 +23,7 @@ The demonstrated technology stack is **Microsoft Outlook/Exchange, Power Automat
 Financial coding values used in the demonstration are fixed test defaults, **not** automatically inferred or verified accounting classifications. The MVP does not autonomously authorize payments.
 
 ## Architecture
-
+![Intelligent Invoice Approval MVP Architecture](docs/architecture.png)
 ```mermaid
 flowchart LR
   A[Outlook / Exchange<br/>Invoice PDF] --> B[Power Automate<br/>AI Builder extraction]
