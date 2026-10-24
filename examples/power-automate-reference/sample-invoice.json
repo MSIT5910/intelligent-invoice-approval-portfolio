@@ -1,0 +1,10 @@
+{
+  "invoiceId": "DEMO-INV-1042",
+  "vendorName": "Example Office Supply",
+  "invoiceDate": "2026-10-01",
+  "amount": 184.75,
+  "currency": "USD",
+  "approverEmail": "approver@example.invalid",
+  "costCenter": "DEMO-100",
+  "justification": "Synthetic office supply purchase"
+}

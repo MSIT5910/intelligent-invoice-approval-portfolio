@@ -1,0 +1,8 @@
+{
+  "invoiceId": "DEMO-INV-1043",
+  "vendorName": "",
+  "invoiceDate": "2026-10-01",
+  "amount": -5,
+  "currency": "USD",
+  "approverEmail": "approver@example.invalid"
+}

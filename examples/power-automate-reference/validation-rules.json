@@ -1,0 +1,23 @@
+{
+  "requiredFields": [
+    "invoiceId",
+    "vendorName",
+    "invoiceDate",
+    "amount",
+    "currency",
+    "approverEmail"
+  ],
+  "amount": {
+    "greaterThan": 0
+  },
+  "currency": {
+    "allowed": [
+      "USD",
+      "CAD",
+      "EUR"
+    ]
+  },
+  "humanApprovalRequired": true,
+  "duplicateDetection": "NOT_IMPLEMENTED_IN_REFERENCE",
+  "externalEsmIntegration": "NOT_IMPLEMENTED_IN_REFERENCE"
+}

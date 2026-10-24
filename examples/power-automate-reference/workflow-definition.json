@@ -1,0 +1,198 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "triggers": {
+    "manual_sample_intake": {
+      "type": "Request",
+      "kind": "Http",
+      "inputs": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "invoiceId",
+            "vendorName",
+            "invoiceDate",
+            "amount",
+            "currency",
+            "approverEmail"
+          ],
+          "properties": {
+            "invoiceId": {
+              "type": "string"
+            },
+            "vendorName": {
+              "type": "string"
+            },
+            "invoiceDate": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "approverEmail": {
+              "type": "string"
+            },
+            "costCenter": {
+              "type": "string"
+            },
+            "justification": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "actions": {
+    "Initialize_audit": {
+      "type": "InitializeVariable",
+      "inputs": {
+        "variables": [
+          {
+            "name": "auditEvents",
+            "type": "array",
+            "value": []
+          }
+        ]
+      },
+      "runAfter": {}
+    },
+    "Normalize_invoice": {
+      "type": "Compose",
+      "inputs": {
+        "invoiceId": "@trim(triggerBody()?['invoiceId'])",
+        "vendorName": "@trim(triggerBody()?['vendorName'])",
+        "invoiceDate": "@triggerBody()?['invoiceDate']",
+        "amount": "@triggerBody()?['amount']",
+        "currency": "@toUpper(triggerBody()?['currency'])",
+        "approverEmail": "@toLower(trim(triggerBody()?['approverEmail']))",
+        "costCenter": "@coalesce(triggerBody()?['costCenter'],'')",
+        "justification": "@coalesce(triggerBody()?['justification'],'')"
+      },
+      "runAfter": {
+        "Initialize_audit": [
+          "Succeeded"
+        ]
+      }
+    },
+    "Check_required_fields": {
+      "type": "If",
+      "expression": {
+        "and": [
+          {
+            "not": {
+              "equals": [
+                "@outputs('Normalize_invoice')?['invoiceId']",
+                ""
+              ]
+            }
+          },
+          {
+            "not": {
+              "equals": [
+                "@outputs('Normalize_invoice')?['vendorName']",
+                ""
+              ]
+            }
+          },
+          {
+            "greater": [
+              "@outputs('Normalize_invoice')?['amount']",
+              0
+            ]
+          },
+          {
+            "contains": [
+              "@createArray('USD','CAD','EUR')",
+              "@outputs('Normalize_invoice')?['currency']"
+            ]
+          }
+        ]
+      },
+      "actions": {
+        "Build_valid_record": {
+          "type": "Compose",
+          "inputs": {
+            "status": "validated",
+            "record": "@outputs('Normalize_invoice')",
+            "note": "Requires authorized human approval and external ESM integration."
+          }
+        }
+      },
+      "else": {
+        "actions": {
+          "Build_exception": {
+            "type": "Compose",
+            "inputs": {
+              "status": "needs_review",
+              "reason": "Missing or invalid invoice fields",
+              "record": "@outputs('Normalize_invoice')"
+            }
+          }
+        }
+      },
+      "runAfter": {
+        "Normalize_invoice": [
+          "Succeeded"
+        ]
+      }
+    },
+    "Prepare_routing_recommendation": {
+      "type": "Compose",
+      "inputs": {
+        "approvalRequired": true,
+        "recommendedApprover": "@outputs('Normalize_invoice')?['approverEmail']",
+        "requiresHumanVerification": true,
+        "routingStatus": "illustrative_only",
+        "note": "No approval is executed by this reference workflow."
+      },
+      "runAfter": {
+        "Check_required_fields": [
+          "Succeeded"
+        ]
+      }
+    },
+    "Build_audit_summary": {
+      "type": "Compose",
+      "inputs": {
+        "invoiceId": "@outputs('Normalize_invoice')?['invoiceId']",
+        "processedAtUtc": "@utcNow()",
+        "events": [
+          "intake",
+          "normalization",
+          "validation",
+          "routing_recommendation"
+        ],
+        "noExternalActionsExecuted": true
+      },
+      "runAfter": {
+        "Prepare_routing_recommendation": [
+          "Succeeded"
+        ]
+      }
+    },
+    "Return_reference_result": {
+      "type": "Response",
+      "kind": "Http",
+      "inputs": {
+        "statusCode": 200,
+        "body": {
+          "invoice": "@outputs('Normalize_invoice')",
+          "routing": "@outputs('Prepare_routing_recommendation')",
+          "audit": "@outputs('Build_audit_summary')",
+          "disclaimer": "Illustrative reference only. Not the implemented capstone workflow."
+        }
+      },
+      "runAfter": {
+        "Build_audit_summary": [
+          "Succeeded"
+        ]
+      }
+    }
+  },
+  "outputs": {}
+}
