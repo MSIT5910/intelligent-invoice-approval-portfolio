@@ -45,10 +45,17 @@ See [implementation details](docs/implementation.md) for module boundaries and p
 
 | Document | Purpose |
 |---|---|
-| [Implementation and architecture](docs/implementation.md) | Reference workflow, integration boundaries, controls and adaptations |
-| [Validation and limitations](docs/validation.md) | Reported test evidence, known defects, and unverified production requirements |
+| [Implementation and architecture](docs/implementation.md) | Implemented workflow, integration boundaries, controls, and portability considerations |
+| [Validation and limitations](docs/validation.md) | Recorded test evidence, known defects, and unverified production requirements |
+| [Power Automate reference code](examples/power-automate-reference/README.md) | Sanitized illustrative workflow logic, synthetic data, validation rules, and proposed test scenarios |
 
-This public portfolio intentionally contains **documentation only**. Environment-specific exports, connection details, organizational identifiers, invoice records, and internal screenshots are excluded.
+### Power Automate reference code
+
+The [Power Automate reference-code package](examples/power-automate-reference/README.md) illustrates invoice normalization, required-field validation, exception handling, routing decisions, and audit information.
+
+This independently authored example uses synthetic data and contains no organization-specific connection information. It is **not an export of the implemented MVP**, has not been imported into Power Automate, and has not undergone integration testing. Environment-specific configuration and additional development would be required before operational use.
+
+The implemented MVP and its recorded validation results are documented separately above. Original environment-specific exports, connection details, organizational identifiers, invoice records, and internal screenshots are intentionally excluded from this public portfolio.
 
 ## Security and governance
 
